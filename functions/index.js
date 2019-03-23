@@ -5,6 +5,24 @@ const functions = require('firebase-functions');
 const admin = require('firebase-admin');
 admin.initializeApp();
 
+var nodemailer = require('nodemailer');
+
+var transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: 'smartcity.alertsystem@gmail.com',
+    pass: 'weakpassword12*'
+  }
+});
+
+var mailOptions = {
+  from: 'smartcity.alertsystem@gmail.com',
+  to: 'ppch09@gmail.com',
+  subject: 'Alert:High Noise Level',
+  text: 'Level of noise is in the hazardous range'
+};
+
+
 // Take the text parameter passed to this HTTP endpoint and insert it into the
 // Realtime Database under the path /messages/:pushId/original
 exports.addMessage = functions.https.onRequest((req, res) => {
@@ -17,15 +35,29 @@ exports.addMessage = functions.https.onRequest((req, res) => {
   });
 });
 
+
 // Listens for new messages added to /messages/:pushId/original and creates an
 // uppercase version of the message to /messages/:pushId/uppercase
 exports.makeUppercase = functions.database.ref('/messages/{pushId}/original')
     .onCreate((snapshot, context) => {
       // Grab the current value of what was written to the Realtime Database.
       const original = snapshot.val();
-      console.log('Uppercasing', context.params.pushId, original);
-      const uppercase = original.toUpperCase();
-      // You must return a Promise when performing asynchronous tasks inside a Functions such as
+    //  console.log('Uppercasing', context.params.pushId, original);
+
+      const uppercase = "hazardous";
+
+console.log("kfndnJFDSVBHFVNVVNVNV");
+
+if(original<1)
+{
+transporter.sendMail(mailOptions, function(error, info){
+  if (error) {
+    console.log(error);
+  } else {
+    console.log('Email sent: ' + info.response);
+  }
+}); 
+ }     // You must return a Promise when performing asynchronous tasks inside a Functions such as
       // writing to the Firebase Realtime Database.
       // Setting an "uppercase" sibling in the Realtime Database returns a Promise.
       return snapshot.ref.parent.child('uppercase').set(uppercase);
